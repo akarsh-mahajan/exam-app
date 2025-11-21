@@ -362,7 +362,7 @@ class RegenerateView(APIView):
 
 class ExamSessionListView(APIView):
     def get(self, request):
-        sessions = ExamSession.objects.all().order_by('-finished_at')
+        sessions = ExamSession.objects.filter(finished_at__isnull=False).order_by('-finished_at')
         data = []
         for ex in sessions:
             data.append({
@@ -434,4 +434,4 @@ class TopicExamSessionListView(generics.ListAPIView):
 
     def get_queryset(self):
         topic_id = self.kwargs['topic_id']
-        return ExamSession.objects.filter(topic_id=topic_id).order_by('-finished_at')
+        return ExamSession.objects.filter(topic_id=topic_id, finished_at__isnull=False).order_by('-finished_at')
