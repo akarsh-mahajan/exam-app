@@ -10,4 +10,7 @@ urlpatterns = [
     path("submit_answer/<uuid:uuid>/", views.SubmitAnswerView.as_view(), name="submit_answer"),
     path("end_exam/<uuid:uuid>/", views.EndExamView.as_view(), name="end_exam"),
     path("regenerate/<int:topic_id>/", views.RegenerateView.as_view(), name="regenerate"),
+    path("topics/<int:topic_id>/sessions/", views.TopicExamSessionListView.as_view(), name="topic_sessions"),
+    path("sessions/<uuid:uuid>/", views.ExamSessionDetailView.as_view(), name="session_detail"),
+    path("clear-database/", views.ClearDatabaseView.as_view(), name="clear_database"),
 ]

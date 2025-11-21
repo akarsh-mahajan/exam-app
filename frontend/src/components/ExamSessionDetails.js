@@ -1,13 +1,33 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { fetchExamSessionDetail } from "../api";
 
-export default function Result() {
-  const { state } = useLocation();
-  const { result } = state || {};
+export default function ExamSessionDetails() {
+  const { uuid } = useParams();
+  const [session, setSession] = useState(null);
+  const [error, setError] = useState(null);
 
-  if (!result) return <p>No results to display</p>;
+  useEffect(() => {
+    const getSessionDetails = async () => {
+      try {
+        const response = await fetchExamSessionDetail(uuid);
+        setSession(response.data);
+      } catch (error) {
+        setError("Error fetching exam session details.");
+        console.error("Error fetching exam session details:", error);
+      }
+    };
 
-  const { correct, wrong, unattempted, details, total } = result;
+    getSessionDetails();
+  }, [uuid]);
+
+  if (error) {
+    return <div className="container">{error}</div>;
+  }
+
+  if (!session) {
+    return <div className="container">Loading...</div>;
+  }
 
   const getOptionClassName = (optionIndex, chosenIndex, correctIndex) => {
     if (chosenIndex === optionIndex) {
@@ -18,22 +38,15 @@ export default function Result() {
 
   return (
     <div className="container">
-      <h2>Quiz Results</h2>
+      <h1>Exam Session Details</h1>
+      <h2>Topic: {session.topic.title}</h2>
+      <p>Date: {new Date(session.finished_at).toLocaleString()}</p>
       <p>
-        <strong>Total Questions:</strong> {total}
-      </p>
-      <p>
-        <strong>Correct:</strong> {correct}
-      </p>
-      <p>
-        <strong>Wrong:</strong> {wrong}
-      </p>
-      <p>
-        <strong>Unattempted:</strong> {unattempted}
+        Score: {session.correct} / {session.total}
       </p>
 
       <div className="question-list">
-        {details.map((detail, index) => (
+        {session.details.map((detail, index) => (
           <div key={detail.question_id} className="question-card">
             <h4>
               Question {index + 1}: {detail.question}

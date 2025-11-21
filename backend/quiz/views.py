@@ -409,3 +409,29 @@ class ExamSessionDetailView(APIView):
             "total": len(exam.question_order),
             "details": details
         })
+
+
+class ClearDatabaseView(APIView):
+    def post(self, request):
+        try:
+            # Delete all questions, then sessions, then topics
+            Question.objects.all().delete()
+            ExamSession.objects.all().delete()
+            Topic.objects.all().delete()
+            return Response(
+                {"detail": "Database cleared successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"detail": f"An error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class TopicExamSessionListView(generics.ListAPIView):
+    serializer_class = ExamSessionSerializer
+
+    def get_queryset(self):
+        topic_id = self.kwargs['topic_id']
+        return ExamSession.objects.filter(topic_id=topic_id).order_by('-finished_at')

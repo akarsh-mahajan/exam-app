@@ -23,3 +23,103 @@
     margin: 10px 0;
   }
   
+  .session-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .session-item {
+    background: #f9f9f9;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .session-item:hover {
+    background: #f1f1f1;
+  }
+  
+  .modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .question-list {
+    margin-top: 20px;
+  }
+  
+  .question-card {
+    background: #f9f9f9;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+  }
+  
+  .option-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .option {
+    padding: 8px;
+    margin: 4px 0;
+    border: 1px solid #eee;
+  }
+  
+  .option.correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+  
+  .option.wrong {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+  }
+  
+  .reasoning {
+    margin-top: 10px;
+    padding: 10px;
+    background: #eef;
+  }
+  
+  .danger-zone {
+    margin-top: 40px;
+    padding: 20px;
+    border: 1px solid #f5c6cb;
+    background-color: #f8d7da;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  

@@ -38,13 +38,18 @@ export const endExam = (examUuid) => {
     return axios.post(`${API_BASE}/end_exam/${examUuid}/`);
 };
 
-// fetch exam sessions list
-export const fetchExamSessions = () => {
-    return axios.get(`${API_BASE}/sessions/`);
+// fetch exam sessions list for a topic
+export const fetchExamSessionsByTopic = (topicId) => {
+    return axios.get(`${API_BASE}/topics/${topicId}/sessions/`);
   };
-  
-  // fetch detail for one session
-  export const fetchExamSessionDetail = (uuid) => {
+
+// fetch detail for one session
+export const fetchExamSessionDetail = (uuid) => {
     return axios.get(`${API_BASE}/sessions/${uuid}/`);
-  };
+};
+
+// clear database
+export const clearDatabase = () => {
+    return axios.post(`${API_BASE}/clear-database/`);
+};
   
