@@ -1,0 +1,6 @@
+#Backend
+/backend/.env
+/backend/media
+/backend/exam_prep/__pycache__
+/backend/quiz/__pycache__
+/backend/quiz/migrations/__pycache__
