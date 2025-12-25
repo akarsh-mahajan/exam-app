@@ -4,6 +4,7 @@ import { uploadPDF } from "../api";
 export default function UploadPDF() {
   const [pdf, setPdf] = useState(null);
   const [topic, setTopic] = useState("");
+  const [numQuestions, setNumQuestions] = useState(10);
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async () => {
@@ -15,7 +16,7 @@ export default function UploadPDF() {
     setLoading(true);
 
     try {
-      await uploadPDF(pdf, topic);
+      await uploadPDF(pdf, topic, numQuestions);
       alert("Questions generated successfully!");
       window.location.reload();
     } catch (err) {
@@ -34,6 +35,13 @@ export default function UploadPDF() {
         placeholder="Enter topic name"
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
+      />
+
+      <input
+        type="number"
+        placeholder="Number of questions"
+        value={numQuestions}
+        onChange={(e) => setNumQuestions(e.target.value)}
       />
 
       <input type="file" onChange={(e) => setPdf(e.target.files[0])} />

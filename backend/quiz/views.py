@@ -22,7 +22,7 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 import base64
 
 # helper: ask Gemini by sending PDF bytes inline
-def ask_gemini_generate_questions(pdf_path: str, topic: str, weak_focus=None):
+def ask_gemini_generate_questions(pdf_path: str, topic: str, weak_focus=None, num_questions=50):
     """
     Uploads a file to Gemini and asks it to generate MCQs.
     """
@@ -52,7 +52,7 @@ def ask_gemini_generate_questions(pdf_path: str, topic: str, weak_focus=None):
     user_prompt = f"""
 You are an expert MCQ generator.
 Use ONLY the uploaded PDF and topic "{topic}".
-Generate EXACTLY 50 MCQs with:
+Generate EXACTLY {num_questions} MCQs with:
   - question (string)
   - options (list of 4 strings)
   - answer_index (0–3)
@@ -128,12 +128,13 @@ class UploadPDFView(APIView):
 
         # call Gemini to generate questions
         try:
-            qlist = ask_gemini_generate_questions(save_path, topic.title, weak_focus)
+            num_questions = int(request.data.get('num_questions', 10))
+            qlist = ask_gemini_generate_questions(save_path, topic.title, weak_focus, num_questions=num_questions)
         except Exception as e:
             return Response({"detail": f"Gemini error: {str(e)}"}, status=500)
 
         created_ids = []
-        for item in qlist[:50]:
+        for item in qlist:
             qtext = item.get('question') or item.get('q') or ''
             options = item.get('options') or item.get('choices') or []
             if len(options) != 4:

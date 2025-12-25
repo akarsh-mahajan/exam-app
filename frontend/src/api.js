@@ -3,10 +3,11 @@ import axios from "axios";
 const API_BASE = "http://127.0.0.1:8000/api/quiz";
 
 // 1️⃣ Upload PDF and create topic
-export const uploadPDF = (file, topic) => {
+export const uploadPDF = (file, topic, numQuestions) => {
   const formData = new FormData();
   formData.append("pdf", file);
   formData.append("topic", topic);
+  formData.append("num_questions", numQuestions);
 
   return axios.post(`${API_BASE}/upload/`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
