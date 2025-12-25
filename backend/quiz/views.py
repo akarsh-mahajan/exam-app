@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -8,11 +9,11 @@ from django.conf import settings
 from django.utils import timezone
 from random import shuffle
 
-from google import genai         # google-generativeai library
+import google.generativeai as genai # google-generativeai library
 from .models import Topic, Question, ExamSession
 from .serializers import TopicSerializer, QuestionSerializer, ExamSessionSerializer
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+genai.configure(api_key=settings.GEMINI_API_KEY)
 
 
 
@@ -23,18 +24,27 @@ import base64
 # helper: ask Gemini by sending PDF bytes inline
 def ask_gemini_generate_questions(pdf_path: str, topic: str, weak_focus=None):
     """
-    Uploads PDF content inline and asks Gemini to generate MCQs.
-    Works with older google-genai SDK versions.
+    Uploads a file to Gemini and asks it to generate MCQs.
     """
+    print(f"Uploading file '{pdf_path}' to Gemini...")
+    
+    # Determine MIME type dynamically if needed, or default to PDF
+    mime_type = "application/pdf"
+    
+    # Upload the file to the Gemini API
+    gemini_file = genai.upload_file(path=pdf_path, display_name=os.path.basename(pdf_path), mime_type=mime_type)
+    print(f"Completed upload: {gemini_file.uri}")
 
-    # 1. Read PDF bytes
-    with open(pdf_path, "rb") as f:
-        pdf_bytes = f.read()
+    # Wait for the file to be processed
+    while gemini_file.state.name == "PROCESSING":
+        print('.', end='')
+        time.sleep(10)
+        gemini_file = genai.get_file(gemini_file.name)
 
-    # 2. Encode PDF to base64
-    pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    if gemini_file.state.name == "FAILED":
+        raise ValueError(f"Gemini file processing failed: {gemini_file.state}")
 
-    # 3. Build the prompt
+    # Construct the prompt
     prompt_extra = ""
     if weak_focus:
         prompt_extra = "Focus more on the weak areas: " + ", ".join(weak_focus)
@@ -50,19 +60,14 @@ Generate EXACTLY 50 MCQs with:
 Return STRICT JSON — only the array, no markdown.
 {prompt_extra}
 """
+    
+    # Create the generative model
+    model = genai.GenerativeModel(model_name="gemini-2.5-flash")
 
-    # 4. Send PDF inline with prompt
-    response = client.models.generate_content(
-        model="models/gemini-2.5-flash",
-        contents=[
-            {"inline_data": {"data": pdf_b64, "mime_type": "application/pdf"}},
-            {"text": user_prompt}
-        ]
-    )
+    # Generate content using the prompt and the uploaded file
+    response = model.generate_content([gemini_file, user_prompt])
 
-    print(response)
-
-    # 5. Extract JSON array from response text
+    # Extract JSON array from response text
     content = response.text
     start = content.find('[')
     end = content.rfind(']')
@@ -70,7 +75,13 @@ Return STRICT JSON — only the array, no markdown.
         raise ValueError(f"Gemini did not return JSON. Raw response: {content}")
 
     json_text = content[start:end+1]
-    return json.loads(json_text)
+    
+    try:
+        return json.loads(json_text)
+    except json.JSONDecodeError as e:
+        print(f"JSONDecodeError: {e}")
+        print(f"Malformed JSON text: {json_text}")
+        raise ValueError("Failed to decode JSON from Gemini response.") from e
 
 
 
